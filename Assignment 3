@@ -73,9 +73,13 @@ def start_hangman_game():
     temp = get_some_letters(word)
     chances = 6
     found = False
+    score = 0
     while True:
         if chances == 0:
-            print(f"Sorry! You Lost, the word was: {word}")
+            score -= 5 
+            if score < 0:
+                score = 0
+            print(f"Sorry! You Lost, the word was: {word}. You lose 5 points, your score is now of {score} points")
             print("Better luck next time")
             break
  
@@ -102,14 +106,14 @@ def start_hangman_game():
             chances -= 1
  
         if '_' not in temp:
-            print(f"\nYou Won! The word was: {word}")
+            score += 10
+            print(f"\nYou Won! The word was: {word}. You win 10 points, your score is now of {score} points.")
             print(f"You got it in {6 - chances} guess")
             break
         else:
             draw_hangman(chances)
  
             print()
-
 print("===== Welcome to the Hangman Game =====")
  
 while True:
