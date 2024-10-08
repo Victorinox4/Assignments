@@ -1,139 +1,127 @@
 import random
-
-def load_words(file_path):
-    """Load words from a file and sort them by length."""
-    with open(file_path, 'r') as f:
-        words = f.read().splitlines()  # Read all words into a list
-    words_by_length = {}  # Create a dictionary to hold words by length
-    for word in words:
-        length = len(word)
-        if length >= 6:  # Only consider words with 6 or more letters
-            if length not in words_by_length:
-                words_by_length[length] = []  # Initialize a list for this length
-            words_by_length[length].append(word)  # Add the word to the list
-    return words_by_length  # Return the dictionary of words sorted by length
-
-def get_random_word(words_by_length, word_length):
-    """Select a random word of a specific length."""
-    return random.choice(words_by_length[word_length])  # Pick a random word from the list
-
-def display_hangman(incorrect_guesses):
-    """Display the hangman based on the number of incorrect guesses."""
-    hangman_states = [
-        """ 
-           -----
-           |   |
-           |   O
-           |  /|\\
-           |  / \\
-           |
-        """,
-        """ 
-           -----
-           |   |
-           |   O
-           |  /|\\
-           |  / 
-           |
-        """,
-        """ 
-           -----
-           |   |
-           |   O
-           |  /|
-           |  
-           |
-        """,
-        """ 
-           -----
-           |   |
-           |   O
-           |   |
-           |  
-           |
-        """,
-        """ 
-           -----
-           |   |
-           |   O
-           |   
-           |  
-           |
-        """,
-        """ 
-           -----
-           |   |
-           |   
-           |   
-           |  
-           |
-        """,
-        """ 
-           -----
-           |   
-           |   
-           |   
-           |  
-           |
-        """
-    ]
-    return hangman_states[incorrect_guesses]  # Return the current state of the hangman
-
-def hangman():
-    print("Welcome to Hangman!")  # Welcome message
-    
-    # Load words from the file
-    file_path = 'words.txt'  # Path to the word list
-    words_by_length = load_words(file_path)  # Load and sort words
-    
+ 
+def get_random_word_from_wordlist():
+    wordlist = []
+ 
+    with open('hangman_wordlist.txt', 'r') as file:
+        wordlist = file.read().split("\n")
+ 
+    word = random.choice(wordlist)
+    return word
+def get_some_letters(word):
+    letters = []
+    temp = '_' * len(word)
+ 
+    for char in list(word):
+        if char not in letters:
+            letters.append(char)
+ 
+    character = random.choice(letters)
+ 
+    for num, char in enumerate(list(word)):
+        if char == character:
+            templist = list(temp)
+            templist[num] = char
+            temp = ''.join(templist)
+ 
+    return temp
+def draw_hangman(chances):
+    if chances == 5:
+        print("________ ")
+        print("| | ")
+        print("| 0 ")
+        print("| ")
+        print("| ")
+        print("| ")
+    elif chances == 4:
+        print("________ ")
+        print("| | ")
+        print("| 0 ")
+        print("| / ")
+        print("| ")
+        print("| ")
+    elif chances == 3:
+        print("________ ")
+        print("| | ")
+        print("| 0 ")
+        print("| /| ")
+        print("| ")
+        print("| ")
+    elif chances == 2:
+        print("________ ")
+        print("| | ")
+        print("| 0 ")
+        print("| /|\ ")
+        print("| ")
+        print("| ")
+    elif chances == 1:
+        print("________ ")
+        print("| | ")
+        print("| 0 ")
+        print("| /|\ ")
+        print("| / ")
+        print("| ")
+    elif chances == 0:
+        print("________ ")
+        print("| | ")
+        print("| 0 ")
+        print("| /|\ ")
+        print("| / \ ")
+        print("| ")
+def start_hangman_game():
+    word = get_random_word_from_wordlist()
+    temp = get_some_letters(word)
+    chances = 6
+    found = False
     while True:
-        word_length = int(input("Choose a word length (6 or more): "))  # Get desired word length
-        if word_length in words_by_length:  # Check if words of that length exist
-            word_to_guess = get_random_word(words_by_length, word_length)  # Pick a random word
-            break  # Exit the loop
+        if chances == 0:
+            print(f"Sorry! You Lost, the word was: {word}")
+            print("Better luck next time")
+            break
+ 
+        print("=== Guess the word ===")
+        print(temp, end='')
+        print(f"\t(word has {len(word)} letters)")
+        print(f"Chances left: {chances}")
+        character = input("Enter the character you think the word may have: ")
+ 
+        if len(character) > 1 or not character.isalpha():
+            print("Please enter a single alphabet only")
+            continue
         else:
-            print(f"No words of length {word_length}. Please choose another length.")  # Prompt again
-    
-    guessed_letters = set()  # Set to keep track of guessed letters
-    incorrect_guesses = 0  # Count of incorrect guesses
-    max_incorrect_guesses = 6  # Max allowed incorrect guesses
-    score = 0  # Initialize score
-    
-    while incorrect_guesses < max_incorrect_guesses:  # Main game loop
-        # Create the current state of the word
-        current_state = ''.join([letter if letter in guessed_letters else '_' for letter in word_to_guess])
-        print(display_hangman(incorrect_guesses))  # Show hangman state
-        print(f"Current word: {current_state}")  # Show current word state
-        print(f"Score: {score}")  # Show current score
-        
-        # Get the player's guess
-        guess = input("Guess a letter: ").lower()  # Convert guess to lowercase
-        if guess in guessed_letters:  # Check if the letter has already been guessed
-            print("You've already guessed that letter.")  # Prompt to try again
-            continue  # Go back to the start of the loop
-        guessed_letters.add(guess)  # Add guessed letter to the set
-        
-        if guess in word_to_guess:  # Check if the guess is correct
-            print("Correct guess!")  # Notify correct guess
-            score += 10  # Add points for correct guess
+            for num, char in enumerate(list(word)):
+                if char == character:
+                    templist = list(temp)
+                    templist[num] = char
+                    temp = ''.join(templist)
+                    found = True
+ 
+        if found:
+            found = False
         else:
-            print("Incorrect guess!")  # Notify incorrect guess
-            score -= 5  # Subtract points for incorrect guess
-            incorrect_guesses += 1  # Increase the incorrect guess count
-        
-        # Check if the word is fully guessed
-        if all(letter in guessed_letters for letter in word_to_guess):
-            print(f"Congratulations! You've guessed the word: {word_to_guess}")  # Win message
-            break  # Exit the loop
-    else:
-        print(display_hangman(incorrect_guesses))  # Show final hangman state
-        print(f"Sorry! You've run out of guesses. The word was: {word_to_guess}")  # Lose message
-    
-    print(f"Your final score: {score}")  # Show final score
-    
-    # Ask if the player wants to play again
-    if input("Do you want to play again? (y/n): ").lower() == 'y':
-        hangman()  # Restart the game
+            chances -= 1
+ 
+        if '_' not in temp:
+            print(f"\nYou Won! The word was: {word}")
+            print(f"You got it in {6 - chances} guess")
+            break
+        else:
+            draw_hangman(chances)
+ 
+            print()
 
-if __name__ == "__main__":
-    hangman()  # Start the game
+print("===== Welcome to the Hangman Game =====")
+ 
+while True:
+    choice = input("Do you wanna play hangman? (yes/no): ")
+ 
+    if 'yes' in choice.lower():
+        start_hangman_game()
+    elif 'no' in choice.lower():
+        print('Quitting the game...')
+        break
+    else:
+        print("Please enter a valid choice.")
+ 
+    print("\n")
+start_hangman_game()
